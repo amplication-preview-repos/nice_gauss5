@@ -1,0 +1,84 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Transaction {
+  amount          Float?
+  createdAt       DateTime                  @default(now())
+  id              String                    @id @default(cuid())
+  transactionDate DateTime?
+  typeField       EnumTransactionTypeField?
+  updatedAt       DateTime                  @updatedAt
+  user            User?                     @relation(fields: [userId], references: [id])
+  userId          String?
+}
+
+model Pool {
+  createdAt      DateTime     @default(now())
+  description    String?
+  id             String       @id @default(cuid())
+  investments    Investment[]
+  name           String?
+  totalLiquidity Float?
+  updatedAt      DateTime     @updatedAt
+}
+
+model Investment {
+  amount         Float?
+  analyticsItems Analytics[]
+  createdAt      DateTime    @default(now())
+  id             String      @id @default(cuid())
+  investmentDate DateTime?
+  pool           Pool?       @relation(fields: [poolId], references: [id])
+  poolId         String?
+  updatedAt      DateTime    @updatedAt
+  user           User?       @relation(fields: [userId], references: [id])
+  userId         String?
+}
+
+model UserProfile {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  settings  Json?
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Analytics {
+  analysisDate DateTime?
+  createdAt    DateTime    @default(now())
+  id           String      @id @default(cuid())
+  investment   Investment? @relation(fields: [investmentId], references: [id])
+  investmentId String?
+  profit       Float?
+  updatedAt    DateTime    @updatedAt
+  user         User?       @relation(fields: [userId], references: [id])
+  userId       String?
+}
+
+model User {
+  analyticsItems Analytics[]
+  balance        Float?
+  createdAt      DateTime      @default(now())
+  email          String?       @unique
+  firstName      String?
+  id             String        @id @default(cuid())
+  investments    Investment[]
+  lastName       String?
+  password       String
+  roles          Json
+  transactions   Transaction[]
+  updatedAt      DateTime      @updatedAt
+  userProfiles   UserProfile[]
+  username       String        @unique
+}
+
+enum EnumTransactionTypeField {
+  Option1
+}
